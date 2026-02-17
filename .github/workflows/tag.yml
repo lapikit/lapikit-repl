@@ -7,6 +7,8 @@ jobs:
   tag-release:
     timeout-minutes: 5
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v1.2.2
@@ -30,14 +32,14 @@ jobs:
       - name: add release notes to github release
         uses: softprops/action-gh-release@v2
         with:
-          token: ${{ secrets.WORKFLOW_GITHUB_TOKEN }}
+          token: ${{ github.token }}
           tag_name: lapikit/repl@${{ steps.package-version.outputs.version }}
           body: |
             Read changelog: [https://github.com/lapikit/lapikit-repl](https://github.com/lapikit/lapikit-repl/blob/main/CHANGELOG.md)
 
             Install this update:
             ```bash
-            npm i -D lapikit@$lastest
+            npm i -D lapikit@latest
             npm i -D @lapikit/repl@${{ steps.package-version.outputs.version }}
             ```
 

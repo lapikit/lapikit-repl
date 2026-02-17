@@ -93,5 +93,7 @@ jobs:
   generate-release-notes:
     name: Tag
     needs: publish
+    permissions:
+      contents: write
     uses: ./.github/workflows/tag.yml
     secrets: inherit
