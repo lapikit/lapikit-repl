@@ -1,6 +1,6 @@
 {
 	"name": "@lapikit/repl",
-	"version": "0.0.5",
+	"version": "0.0.6",
 	"license": "MIT",
 	"publishConfig": {
 		"access": "public"
@@ -9,10 +9,12 @@
 		"name": "Nycolaide",
 		"email": "contact@lapikit.dev"
 	},
+	"homepage": "https://lapikit.dev",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/lapikit/lapikit-repl.git"
 	},
+	"funding": "https://buymeacoffee.com/nycolaide",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && npm run prepack",
