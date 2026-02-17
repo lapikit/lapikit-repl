@@ -1,12 +1,10 @@
 name: Sandbox Release
 
 on:
-  workflow_run:
-    workflows: ['Sandbox CI']
-    types: [completed]
+  workflow_call:
 
 concurrency:
-  group: sandbox-release-${{ github.event.workflow_run.head_branch }}
+  group: sandbox-release-${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.ref_name }}
   cancel-in-progress: true
 
 permissions:
@@ -23,7 +21,7 @@ jobs:
   prerelease:
     name: set insiders version
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     timeout-minutes: 1
     permissions:
       contents: write
@@ -34,7 +32,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
       - name: resolve version
         id: get_sha_version
@@ -50,7 +48,7 @@ jobs:
   publish:
     name: build and publish
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     needs: prerelease
     env:
       version_release: ${{ needs.prerelease.outputs.version_release }}
@@ -58,7 +56,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
       - uses: oven-sh/setup-bun@v1.2.2
 
       - name: Setup Node LTS

@@ -122,3 +122,10 @@ jobs:
 
       - name: Build
         run: bun run build
+
+  publish-release-insider:
+    name: deploy insider release
+    needs: build
+    if: github.ref != 'refs/heads/main'
+    uses: ./.github/workflows/sandbox-release.yml
+    secrets: inherit
