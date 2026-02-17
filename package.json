@@ -11,7 +11,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/Nycolaide/lapikit.git"
+		"url": "git+https://github.com/lapikit/lapikit-repl.git"
 	},
 	"scripts": {
 		"dev": "vite dev",
