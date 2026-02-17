@@ -8,9 +8,6 @@ concurrency:
   group: sandbox-ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: read
-
 env:
   NODE_VERSION: 'lts/*'
   BUN_VERSION: 'latest'
@@ -127,5 +124,8 @@ jobs:
     name: deploy insider release
     needs: build
     if: github.ref != 'refs/heads/main'
+    permissions:
+      id-token: write
+      contents: read
     uses: ./.github/workflows/sandbox-release.yml
     secrets: inherit
