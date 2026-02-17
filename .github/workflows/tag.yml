@@ -1,4 +1,4 @@
-name: 'Tag Notes'
+name: 'Tag'
 
 on:
   workflow_call:

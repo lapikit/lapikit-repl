@@ -1,12 +1,8 @@
-name: Sandbox CI
+name: Integration Test
 
 on:
   push:
     branches: ['**']
-
-concurrency:
-  group: sandbox-ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 env:
   NODE_VERSION: 'lts/*'
@@ -127,5 +123,5 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    uses: ./.github/workflows/sandbox-release.yml
+    uses: ./.github/workflows/insider-release.yml
     secrets: inherit
