@@ -117,11 +117,21 @@ jobs:
         run: bun run build
 
   publish-release-insider:
-    name: deploy insider release
+    name: Deploy Insider
     needs: build
     if: github.ref != 'refs/heads/main'
     permissions:
       id-token: write
       contents: read
     uses: ./.github/workflows/insider-release.yml
+    secrets: inherit
+
+  publish-release-latest:
+    name: Deploy Latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      id-token: write
+      contents: read
+    uses: ./.github/workflows/latest-release.yml
     secrets: inherit
