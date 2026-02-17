@@ -19,8 +19,6 @@ jobs:
     name: Check Version
     runs-on: ubuntu-latest
     timeout-minutes: 1
-    permissions:
-      contents: write
     outputs:
       should_publish: ${{ steps.check.outputs.should_publish }}
       version_release: ${{ steps.get_version.outputs.version_release }}
@@ -55,30 +53,31 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v1.2.2
+        with:
+          ref: ${{ github.sha }}
 
-      - name: setup node.js
+      - name: Setup Node LTS
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          registry-url: 'https://registry.npmjs.org/'
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
 
       - name: update .npmrc
         run: |
           echo "engine-strict=false" > ~/.npmrc
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
 
-      - name: install dependencies
-        run: bun install
-
       - name: set github actions bot
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: build package
-        run: |
-          bun run build
+      - name: install dependencies
+        run: bun install --frozen-lockfile
 
       - name: verify package
         run: |
