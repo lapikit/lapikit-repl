@@ -20,7 +20,7 @@
 	let viewState: 'code' | 'preview' = $state('code');
 	let themeState: 'light' | 'dark' = $state('light');
 
-	let codeHTML = $state('');
+	let codeHTML = $state<string | null>(null);
 	let activeFileIndex = $state(0);
 
 	let files = $derived.by<FileItem[]>(() => {
@@ -94,15 +94,15 @@
 		const theme = themeState;
 
 		if (file?.content) {
+			codeHTML = null;
+			language = file.lang || 'sh';
+
 			(async () => {
 				const highlighter = await getHighlighterSingleton();
-
-				language = file.lang || 'sh';
 				const html = highlighter.codeToHtml(file.content, {
 					theme: theme === 'light' ? 'github-light' : 'github-dark',
 					lang: file.lang || language
 				});
-
 				codeHTML = html;
 			})();
 		}
@@ -144,8 +144,14 @@
 			class:kit-repl-content--code={viewState === 'code' && !presentation}
 		>
 			{#if viewState === 'code'}
-				<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-				<div class="kit-repl-wrapper-highlight" bind:this={ref}>{@html codeHTML}</div>
+				<div class="kit-repl-wrapper-highlight" bind:this={ref}>
+					{#if codeHTML !== null}
+						<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+						{@html codeHTML}
+					{:else}
+						<pre class="kit-repl-raw"><code>{activeFile?.content ?? ''}</code></pre>
+					{/if}
+				</div>
 			{:else}
 				<div
 					class="kit-repl-wrapper-playground"
@@ -211,6 +217,16 @@
 		border: thin solid var(--kit-repl-border-color);
 		margin-top: 0;
 		margin-bottom: 0;
+	}
+
+	.kit-repl-raw {
+		font-size: var(--kit-repl-shiki-size);
+		-moz-tab-size: var(--kit-repl-shiki-tab-size);
+		tab-size: var(--kit-repl-shiki-tab-size);
+		white-space: pre-wrap;
+		word-break: break-word;
+		margin: 0;
+		padding: 0;
 	}
 
 	div.kit-repl-container .kit-repl-wrapper-highlight :global(pre code) {
