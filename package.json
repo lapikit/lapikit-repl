@@ -47,7 +47,8 @@
 	},
 	"peerDependencies": {
 		"@sveltejs/kit": "^2.0.0",
-		"svelte": "^5.0.0"
+		"svelte": "^5.0.0",
+		"lapikit": "^0.5.0"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.4.0",
