@@ -91,7 +91,7 @@
 
 	$effect(() => {
 		const file = activeFile;
-		const theme = themeState;
+		// const theme = themeState;
 
 		if (file?.content) {
 			codeHTML = null;
@@ -100,7 +100,8 @@
 			(async () => {
 				const highlighter = await getHighlighterSingleton();
 				const html = highlighter.codeToHtml(file.content, {
-					theme: theme === 'light' ? 'github-light' : 'github-dark',
+					// theme: theme === 'light' ? 'github-light' : 'github-dark',
+					theme: 'github-light',
 					lang: file.lang || language
 				});
 				codeHTML = html;
@@ -188,7 +189,7 @@
 	}
 
 	.kit-repl-container :global(pre) {
-		background-color: var(--kit-repl-background) !important;
+		background-color: #f9f9f9 !important;
 	}
 
 	.kit-repl-content {
