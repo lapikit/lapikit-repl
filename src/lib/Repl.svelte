@@ -176,10 +176,10 @@
 		--kit-repl-shiki-tab-size: 2;
 
 		/* colors */
-		--kit-repl-background: #f9f9f9;
-		--kit-repl-border-color: #ebebeb;
-		--kit-repl-primary: #0d0d34;
-		--kit-repl-secondary: #8f8f8f;
+		--kit-repl-background: var(--kit-surface-3, #f9f9f9);
+		--kit-repl-border-color: var(--kit-border, #ebebeb);
+		--kit-repl-primary: var(--kit-fg, #0d0d34);
+		--kit-repl-secondary: var(--kit-muted, #8f8f8f);
 	}
 	.kit-repl-container {
 		background-color: var(--kit-repl-background);
