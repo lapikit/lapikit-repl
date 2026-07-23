@@ -5,9 +5,11 @@
 	import { Copy, Check, Code, Codesandbox, Moon, Sun } from '@lucide/svelte';
 
 	let {
+		children,
 		title,
 		language,
 		presentation,
+		files,
 		copyState = $bindable(),
 		viewState = $bindable(),
 		themeState = $bindable(),
@@ -20,17 +22,19 @@
 </script>
 
 <div class="kit-repl--toolbar">
-	<div
-		class="kit-repl--toolbar-title"
-		class:kit-repl--toolbar-title--language={!title && language}
-		class:kit-repl--toolbar-title--title={title}
-	>
-		{#if title}
+	{#if title}
+		<div class="kit-repl--toolbar-title" class:kit-repl--toolbar-title--title={title}>
 			<span>{title}</span>
-		{:else if language}
+		</div>
+	{:else if files && files.length > 1}
+		<div class="kit-repl--toolbar-files">
+			{@render children?.()}
+		</div>
+	{:else if language}
+		<div class="kit-repl--toolbar-title" class:kit-repl--toolbar-title--language={language}>
 			<span>{languageKey}</span>
-		{/if}
-	</div>
+		</div>
+	{/if}
 
 	<div class="kit-repl--toolbar-actions">
 		{#if (modeState !== 'code' && viewState === 'preview') || presentation}
@@ -78,15 +82,14 @@
 
 <style>
 	.kit-repl--toolbar {
-		display: flex;
+		display: grid;
 		align-items: center;
-		justify-content: space-between;
-		gap: calc(var(--kit-repl-spacing) * 3);
-		padding-left: calc(5 * var(--kit-repl-spacing));
-		padding-right: calc(var(--kit-repl-spacing) * 2);
-		padding-block: calc(var(--kit-repl-spacing) * 1.5);
+		grid-template-columns: 1fr auto;
+		padding-left: calc(var(--kit-repl-spacing) * 2);
+		background-color: color-mix(in oklab, var(--kit-repl-background) 95%, black);
 		border-top-left-radius: var(--kit-repl-radius);
 		border-top-right-radius: var(--kit-repl-radius);
+		gap: var(--kit-repl-spacing);
 		min-height: 36px;
 	}
 
@@ -99,22 +102,25 @@
 	}
 
 	.kit-repl--toolbar-title--language {
-		font-size: 0.875rem;
-		line-height: 16px;
-		font-weight: 400;
-		color: #5d5d5d;
+		font-size: var(--kit-repl-shiki-size);
+		line-height: 1;
+		color: var(--kit-color-text-muted);
 	}
 
 	.kit-repl--toolbar-title--title {
-		font-weight: 500;
-		font-size: 1rem;
-		line-height: 20px;
-		color: #8f8f8f;
+		font-size: var(--kit-repl-shiki-size);
+		line-height: 1;
+		color: var(--kit-color-text-muted);
 	}
 
 	.kit-repl--toolbar .kit-repl--toolbar-actions {
 		display: flex;
 		align-items: center;
 		gap: calc(var(--kit-repl-spacing) * 2);
+	}
+
+	.kit-repl--toolbar .kit-repl--toolbar-files {
+		width: 100%;
+		overflow-x: auto;
 	}
 </style>

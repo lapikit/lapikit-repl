@@ -128,17 +128,22 @@
 			{title}
 			{language}
 			{presentation}
+			{files}
 			bind:copyState
 			bind:viewState
 			bind:themeState
 			bind:modeState
-		/>
+		>
+			<Files {files} bind:activeIndex={activeFileIndex} {modeState} {viewState} />
+		</Toolbar>
 
 		{#if modeState !== 'code'}
 			<hr />
 		{/if}
 
-		<Files {files} bind:activeIndex={activeFileIndex} {modeState} {viewState} />
+		{#if title}
+			<Files {files} bind:activeIndex={activeFileIndex} {modeState} {viewState} />
+		{/if}
 
 		<div
 			class="kit-repl-content"
@@ -169,36 +174,37 @@
 <style>
 	.kit-repl {
 		/* ui */
-		--kit-repl-spacing: 0.25rem;
-		--kit-repl-radius: 1rem;
+		--kit-repl-spacing: var(--kit-space-default, 4px);
+		--kit-repl-radius: var(--kit-shape-md, 10px);
 
 		/* shiki override */
-		--kit-repl-shiki-size: 0.875rem;
+		--kit-repl-shiki-size: var(--kit-font-xs, 13px);
 		--kit-repl-shiki-tab-size: 2;
 
 		/* colors */
-		--kit-repl-background: var(--kit-surface-3, #f9f9f9);
-		--kit-repl-border-color: var(--kit-border, #ebebeb);
-		--kit-repl-primary: var(--kit-fg, #0d0d34);
-		--kit-repl-secondary: var(--kit-muted, #8f8f8f);
+		--kit-repl-background: var(--kit-color-surface-1, #f9f9f9);
+		--kit-repl-border-color: var(--kit-color-fill, #ebebeb);
+		--kit-repl-primary: var(--kit-color-text, #0d0d34);
+		--kit-repl-secondary: var(--kit-color-text-muted, #8f8f8f);
 	}
 	.kit-repl-container {
 		background-color: var(--kit-repl-background);
 		border-radius: var(--kit-repl-radius);
-		border: 2px solid var(--kit-repl-border-color);
+		border: 1px solid var(--kit-repl-border-color);
 	}
 
 	.kit-repl-container :global(pre) {
-		background-color: #f9f9f9 !important;
+		background-color: var(--kit-repl-background) !important;
 	}
 
 	.kit-repl-content {
 		display: flow-root;
-		margin-top: calc(var(--kit-repl-spacing) * 0);
-		padding-right: calc(10 * var(--kit-repl-spacing));
+		padding-left: calc(var(--kit-repl-spacing) * 2);
+		/* margin-top: calc(var(--kit-repl-spacing) * 0); */
+		/* padding-right: calc(10 * var(--kit-repl-spacing));
 		padding-left: calc(5 * var(--kit-repl-spacing));
 		padding-bottom: calc(4 * var(--kit-repl-spacing));
-		padding-top: calc(3 * var(--kit-repl-spacing));
+		padding-top: calc(3 * var(--kit-repl-spacing)); */
 		position: relative;
 	}
 

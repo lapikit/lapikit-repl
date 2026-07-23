@@ -15,6 +15,8 @@ export interface ToolbarProps {
 	viewState?: 'code' | 'preview';
 	themeState?: 'light' | 'dark';
 	modeState?: 'code' | 'playground' | 'mixed';
+	children?: Snippet;
+	files?: FileItem[];
 }
 
 export interface FilesProps {

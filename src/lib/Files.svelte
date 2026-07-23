@@ -28,19 +28,15 @@
 <style>
 	div {
 		display: flex;
-		gap: calc(var(--kit-repl-spacing) * 2);
-		padding-left: calc(5 * var(--kit-repl-spacing));
-		padding-right: calc(5 * var(--kit-repl-spacing));
-		padding-block: calc(var(--kit-repl-spacing) * 2);
 		overflow-x: auto;
 	}
 
 	button {
 		display: flex;
 		align-items: center;
-		gap: calc(var(--kit-repl-spacing) * 2);
-		padding: calc(var(--kit-repl-spacing) * 2) calc(var(--kit-repl-spacing) * 3);
-		font-size: 0.875rem;
+		padding: 9px 4px;
+		gap: var(--kit-repl-spacing);
+		font-size: var(--kit-repl-shiki-size);
 		transition: all 0.2s ease;
 		border: 0;
 		white-space: nowrap;
@@ -55,10 +51,11 @@
 	}
 
 	button:hover {
-		border-color: #cfcfcf;
+		border-color: var(--kit-color-accent, var(--kit-repl-secondary));
 	}
 
 	button.active {
-		border-color: #000000;
+		border-color: var(--kit-color-accent, var(--kit-repl-primary));
+		color: var(--kit-color-accent, var(--kit-repl-primary));
 	}
 </style>
