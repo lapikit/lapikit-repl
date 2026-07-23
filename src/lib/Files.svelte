@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { FilesProps } from '$lib/types.js';
-	import { dictionaryIcons } from '$lib/utils.js';
+	import { dictionaryIcons, dictionaryPkgIcons } from '$lib/utils.js';
 
 	let { files, activeIndex = $bindable(), modeState, viewState }: FilesProps = $props();
 </script>
@@ -16,7 +16,9 @@
 				class:active={activeIndex === index}
 				onclick={() => (activeIndex = index)}
 			>
-				{#if file.lang && dictionaryIcons[file.lang]}
+				{#if dictionaryPkgIcons[file.name.toLowerCase()]}
+					<img src={dictionaryPkgIcons[file.name.toLowerCase()]} alt="{file.name} icon" />
+				{:else if file.lang && dictionaryIcons[file.lang]}
 					<img src={dictionaryIcons[file.lang]} alt="{file.lang} icon" />
 				{/if}
 				<span>{file.name}</span>
@@ -48,6 +50,7 @@
 	button img {
 		width: 16px;
 		height: 16px;
+		border: 0;
 	}
 
 	button:hover {

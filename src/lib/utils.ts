@@ -4,6 +4,9 @@ import svelte from '$lib/languages/svelte.svg';
 import css from '$lib/languages/css.svg';
 import html from '$lib/languages/html.svg';
 import shell from '$lib/languages/shell.svg';
+import npm from '$lib/pkg/npm.svg';
+import yarn from '$lib/pkg/yarn.svg';
+import bun from '$lib/pkg/bun.svg';
 
 export const copyToClipboard = (value: string) => {
 	if (navigator.clipboard && window.isSecureContext) {
@@ -61,4 +64,10 @@ export const dictionaryIcons: { [key: string]: string } = {
 	html: html,
 	htm: html,
 	json: shell
+};
+
+export const dictionaryPkgIcons: { [key: string]: string } = {
+	npm,
+	yarn,
+	bun
 };

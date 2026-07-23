@@ -195,6 +195,14 @@
 
 	.kit-repl-container :global(pre) {
 		background-color: var(--kit-repl-background) !important;
+		border: 0 !important;
+		border-radius: 0 !important;
+		border-bottom-left-radius: var(--kit-repl-radius) !important;
+		border-bottom-right-radius: var(--kit-repl-radius) !important;
+		padding: 10px 0 !important;
+		margin-bottom: 0 !important;
+		margin-top: 0 !important;
+		font-size: var(--kit-repl-shiki-size) !important;
 	}
 
 	.kit-repl-content {
