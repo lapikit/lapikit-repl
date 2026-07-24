@@ -91,7 +91,6 @@
 
 	$effect(() => {
 		const file = activeFile;
-		// const theme = themeState;
 
 		if (file?.content) {
 			codeHTML = null;
@@ -100,8 +99,8 @@
 			(async () => {
 				const highlighter = await getHighlighterSingleton();
 				const html = highlighter.codeToHtml(file.content, {
-					// theme: theme === 'light' ? 'github-light' : 'github-dark',
-					theme: 'github-light',
+					themes: { light: 'github-light', dark: 'github-dark' },
+					defaultColor: false,
 					lang: file.lang || language
 				});
 				codeHTML = html;
@@ -250,6 +249,24 @@
 		tab-size: var(--kit-repl-shiki-tab-size);
 		white-space: pre-wrap;
 		word-break: break-word;
+	}
+
+	/* shiki dual-theme: follows the ambient lapikit theme (light/dark/system) */
+	.kit-repl-wrapper-highlight :global(.shiki),
+	.kit-repl-wrapper-highlight :global(.shiki span) {
+		color: var(--shiki-light);
+	}
+
+	:global([data-kit-theme='dark']) .kit-repl-wrapper-highlight :global(.shiki),
+	:global([data-kit-theme='dark']) .kit-repl-wrapper-highlight :global(.shiki span) {
+		color: var(--shiki-dark);
+	}
+
+	@media (prefers-color-scheme: dark) {
+		:global([data-kit-theme='system']) .kit-repl-wrapper-highlight :global(.shiki),
+		:global([data-kit-theme='system']) .kit-repl-wrapper-highlight :global(.shiki span) {
+			color: var(--shiki-dark);
+		}
 	}
 
 	div.kit-repl-container .kit-repl-wrapper-playground {
