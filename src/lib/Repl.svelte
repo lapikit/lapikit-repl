@@ -21,8 +21,9 @@
 	let viewState: 'code' | 'preview' = $state('code');
 
 	// theme: mirrors the ambient lapikit theme (light/dark/system) until the
-	// toolbar toggle is used, at which point it becomes a local override
-	// scoped to this repl instance only.
+	// toolbar toggle is used. The override only applies to the rendered
+	// children/preview area — the toolbar and shiki code always follow
+	// the ambient theme.
 	const theme = createTheme();
 	let themeOverridden = $state(false);
 	let themeState = $derived<'light' | 'dark'>(theme.active === 'dark' ? 'dark' : 'light');
@@ -121,10 +122,10 @@
 	});
 </script>
 
-<div class="kit-repl" use:theme.action={{ overridden: themeOverridden }}>
+<div class="kit-repl">
 	{#if presentation}
 		<div class="kit-repl-content" class:kit-repl-content--playground={presentation}>
-			<div class="wrapper-playground">
+			<div class="wrapper-playground" use:theme.action={{ overridden: themeOverridden }}>
 				{@render children?.()}
 			</div>
 		</div>
@@ -167,7 +168,7 @@
 					{/if}
 				</div>
 			{:else}
-				<div class="kit-repl-wrapper-playground">
+				<div class="kit-repl-wrapper-playground" use:theme.action={{ overridden: themeOverridden }}>
 					{@render children?.()}
 				</div>
 			{/if}
