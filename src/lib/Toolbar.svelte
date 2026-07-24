@@ -59,9 +59,9 @@
 				onclick={() => (viewState = viewState === 'code' ? 'preview' : 'code')}
 			>
 				{#if viewState === 'code'}
-					<Code />
-				{:else}
 					<Codesandbox />
+				{:else}
+					<Code />
 				{/if}
 			</Button>
 		{/if}

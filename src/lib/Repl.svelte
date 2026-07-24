@@ -146,9 +146,9 @@
 			<Files {files} bind:activeIndex={activeFileIndex} {modeState} {viewState} />
 		</Toolbar>
 
-		{#if modeState !== 'code'}
+		<!-- {#if modeState !== 'code'}
 			<hr />
-		{/if}
+		{/if} -->
 
 		{#if title}
 			<Files {files} bind:activeIndex={activeFileIndex} {modeState} {viewState} />
@@ -187,6 +187,7 @@
 		--kit-repl-shiki-tab-size: 2;
 
 		/* colors */
+		--kit-repl-playground: var(--kit-color-surface, #fbfbfb);
 		--kit-repl-background: var(--kit-color-surface-1, #f9f9f9);
 		--kit-repl-border-color: var(--kit-color-fill, #ebebeb);
 		--kit-repl-primary: var(--kit-color-text, #0d0d34);
@@ -212,7 +213,7 @@
 
 	.kit-repl-content {
 		display: flow-root;
-		padding-left: calc(var(--kit-repl-spacing) * 2);
+		/* padding-left: calc(var(--kit-repl-spacing) * 2); */
 		/* margin-top: calc(var(--kit-repl-spacing) * 0); */
 		/* padding-right: calc(10 * var(--kit-repl-spacing));
 		padding-left: calc(5 * var(--kit-repl-spacing));
@@ -223,6 +224,7 @@
 
 	.kit-repl-content--code {
 		padding-top: 0;
+		padding-left: calc(var(--kit-repl-spacing) * 2);
 	}
 
 	.kit-repl-content--playground {
@@ -230,14 +232,14 @@
 		padding-bottom: calc(10 * var(--kit-repl-spacing));
 	}
 
-	hr {
+	/* hr {
 		max-width: calc(100% - 2.5rem);
 		margin-inline-start: calc(2.5rem / 2);
 		display: block;
 		border: thin solid var(--kit-repl-border-color);
 		margin-top: 0;
 		margin-bottom: 0;
-	}
+	} */
 
 	.kit-repl-raw {
 		font-size: var(--kit-repl-shiki-size);
@@ -276,8 +278,10 @@
 	}
 
 	div.kit-repl-container .kit-repl-wrapper-playground {
-		background-color: var(--kit-repl-background);
-		border-radius: var(--kit-repl-radius);
+		background-color: var(--kit-repl-playground);
+		/* border-radius: var(--kit-repl-radius); */
+		border-bottom-left-radius: var(--kit-repl-radius);
+		border-bottom-right-radius: var(--kit-repl-radius);
 		padding: calc(4 * var(--kit-repl-spacing));
 	}
 </style>
