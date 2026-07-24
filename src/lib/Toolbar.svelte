@@ -12,7 +12,8 @@
 		files,
 		copyState = $bindable(),
 		viewState = $bindable(),
-		themeState = $bindable(),
+		themeState,
+		onToggleTheme,
 		modeState = $bindable()
 	}: ToolbarProps = $props();
 
@@ -41,7 +42,7 @@
 			<Button
 				aria-label={themeState === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
 				aria-pressed={themeState === 'dark'}
-				onclick={() => (themeState = themeState === 'light' ? 'dark' : 'light')}
+				onclick={() => onToggleTheme?.()}
 			>
 				{#if themeState === 'light'}
 					<Moon />

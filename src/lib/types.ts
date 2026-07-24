@@ -14,6 +14,7 @@ export interface ToolbarProps {
 	presentation?: boolean;
 	viewState?: 'code' | 'preview';
 	themeState?: 'light' | 'dark';
+	onToggleTheme?: () => void;
 	modeState?: 'code' | 'playground' | 'mixed';
 	children?: Snippet;
 	files?: FileItem[];

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { copyToClipboard } from '$lib/utils.js';
 	import { getHighlighterSingleton } from '$lib/shiki.js';
+	import { createTheme } from 'lapikit/actions';
 	import type { FileItem, ReplProps } from '$lib/types.js';
 
 	// components
@@ -18,7 +19,18 @@
 	let modeState: 'code' | 'playground' | 'mixed' = $state('code');
 	let copyState = $state(false);
 	let viewState: 'code' | 'preview' = $state('code');
-	let themeState: 'light' | 'dark' = $state('light');
+
+	// theme: mirrors the ambient lapikit theme (light/dark/system) until the
+	// toolbar toggle is used, at which point it becomes a local override
+	// scoped to this repl instance only.
+	const theme = createTheme();
+	let themeOverridden = $state(false);
+	let themeState = $derived<'light' | 'dark'>(theme.active === 'dark' ? 'dark' : 'light');
+
+	function toggleTheme() {
+		themeOverridden = true;
+		theme.set(themeState === 'dark' ? 'light' : 'dark');
+	}
 
 	let codeHTML = $state<string | null>(null);
 	let activeFileIndex = $state(0);
@@ -109,14 +121,10 @@
 	});
 </script>
 
-<div class="kit-repl">
+<div class="kit-repl" use:theme.action={{ overridden: themeOverridden }}>
 	{#if presentation}
 		<div class="kit-repl-content" class:kit-repl-content--playground={presentation}>
-			<div
-				class="wrapper-playground"
-				class:dark={themeState === 'dark'}
-				class:light={themeState === 'light'}
-			>
+			<div class="wrapper-playground">
 				{@render children?.()}
 			</div>
 		</div>
@@ -128,9 +136,10 @@
 			{language}
 			{presentation}
 			{files}
+			{themeState}
+			onToggleTheme={toggleTheme}
 			bind:copyState
 			bind:viewState
-			bind:themeState
 			bind:modeState
 		>
 			<Files {files} bind:activeIndex={activeFileIndex} {modeState} {viewState} />
@@ -158,11 +167,7 @@
 					{/if}
 				</div>
 			{:else}
-				<div
-					class="kit-repl-wrapper-playground"
-					class:dark={themeState === 'dark'}
-					class:light={themeState === 'light'}
-				>
+				<div class="kit-repl-wrapper-playground">
 					{@render children?.()}
 				</div>
 			{/if}
