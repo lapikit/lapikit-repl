@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { copyToClipboard } from '$lib/utils.js';
-	import { getHighlighterSingleton } from '$lib/shiki.js';
+	import { getHighlighterSingleton, resolveLang } from '$lib/shiki.js';
+	import { createTheme } from 'lapikit/actions';
+	import { MediaQuery } from 'svelte/reactivity';
 	import type { FileItem, ReplProps } from '$lib/types.js';
 
 	// components
@@ -18,9 +20,20 @@
 	let modeState: 'code' | 'playground' | 'mixed' = $state('code');
 	let copyState = $state(false);
 	let viewState: 'code' | 'preview' = $state('code');
-	let themeState: 'light' | 'dark' = $state('light');
 
-	let codeHTML = $state('');
+	const theme = createTheme();
+	let themeOverridden = $state(false);
+	const prefersDark = new MediaQuery('(prefers-color-scheme: dark)');
+	let themeState = $derived<'light' | 'dark'>(
+		theme.active === 'dark' || (theme.active === 'system' && prefersDark.current) ? 'dark' : 'light'
+	);
+
+	function toggleTheme() {
+		themeOverridden = true;
+		theme.set(themeState === 'dark' ? 'light' : 'dark');
+	}
+
+	let codeHTML = $state<string | null>(null);
 	let activeFileIndex = $state(0);
 
 	let files = $derived.by<FileItem[]>(() => {
@@ -29,7 +42,8 @@
 				{
 					name: title || 'code',
 					content: content.code,
-					lang: content.lang || 'sh'
+					lang: content.lang || 'sh',
+					icon: content.icon
 				}
 			];
 		}
@@ -44,7 +58,11 @@
 				lang:
 					typeof fileContent === 'object'
 						? ((fileContent as Record<string, unknown>).lang as string)
-						: 'sh'
+						: 'sh',
+				icon:
+					typeof fileContent === 'object'
+						? ((fileContent as Record<string, unknown>).icon as string | undefined)
+						: undefined
 			}));
 		}
 
@@ -52,7 +70,8 @@
 			return content.map((item) => ({
 				name: item.name,
 				content: item.content || item.code || '',
-				lang: item.lang || 'sh'
+				lang: item.lang || 'sh',
+				icon: item.icon
 			}));
 		}
 
@@ -77,46 +96,51 @@
 	});
 
 	$effect(() => {
-		if (copyState) {
-			if (ref?.textContent) {
-				copyToClipboard(ref?.textContent);
-				copyState = true;
+		if (!copyState || !ref?.textContent) return;
 
-				setTimeout(() => {
-					copyState = false;
-				}, 1500);
-			}
-		}
+		copyToClipboard(ref.textContent);
+		const timeout = setTimeout(() => {
+			copyState = false;
+		}, 1500);
+
+		return () => clearTimeout(timeout);
 	});
 
 	$effect(() => {
 		const file = activeFile;
-		const theme = themeState;
 
-		if (file?.content) {
-			(async () => {
-				const highlighter = await getHighlighterSingleton();
+		if (!file?.content) return;
 
-				language = file.lang || 'sh';
-				const html = highlighter.codeToHtml(file.content, {
-					theme: theme === 'light' ? 'github-light' : 'github-dark',
-					lang: file.lang || language
+		codeHTML = null;
+		language = file.lang || 'sh';
+		const lang = language;
+		// a slower, older highlight must not overwrite the file selected since
+		let stale = false;
+
+		getHighlighterSingleton()
+			.then((highlighter) => {
+				if (stale) return;
+				codeHTML = highlighter.codeToHtml(file.content, {
+					themes: { light: 'github-light', dark: 'github-dark' },
+					defaultColor: false,
+					lang: resolveLang(highlighter, lang)
 				});
+			})
+			.catch((error) => {
+				// the raw code fallback stays visible
+				console.error('[kit-repl] unable to load the highlighter', error);
+			});
 
-				codeHTML = html;
-			})();
-		}
+		return () => {
+			stale = true;
+		};
 	});
 </script>
 
 <div class="kit-repl">
 	{#if presentation}
 		<div class="kit-repl-content" class:kit-repl-content--playground={presentation}>
-			<div
-				class="wrapper-playground"
-				class:dark={themeState === 'dark'}
-				class:light={themeState === 'light'}
-			>
+			<div class="wrapper-playground" use:theme.action={{ overridden: themeOverridden }}>
 				{@render children?.()}
 			</div>
 		</div>
@@ -127,31 +151,35 @@
 			{title}
 			{language}
 			{presentation}
+			{files}
+			{themeState}
+			onToggleTheme={toggleTheme}
 			bind:copyState
 			bind:viewState
-			bind:themeState
 			bind:modeState
-		/>
+		>
+			<Files {files} bind:activeIndex={activeFileIndex} {modeState} {viewState} />
+		</Toolbar>
 
-		{#if modeState !== 'code'}
-			<hr />
+		{#if title}
+			<Files {files} bind:activeIndex={activeFileIndex} {modeState} {viewState} />
 		{/if}
-
-		<Files {files} bind:activeIndex={activeFileIndex} {modeState} {viewState} />
 
 		<div
 			class="kit-repl-content"
 			class:kit-repl-content--code={viewState === 'code' && !presentation}
 		>
 			{#if viewState === 'code'}
-				<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-				<div class="kit-repl-wrapper-highlight" bind:this={ref}>{@html codeHTML}</div>
+				<div class="kit-repl-wrapper-highlight" bind:this={ref}>
+					{#if codeHTML !== null}
+						<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+						{@html codeHTML}
+					{:else}
+						<pre class="kit-repl-raw"><code>{activeFile?.content ?? ''}</code></pre>
+					{/if}
+				</div>
 			{:else}
-				<div
-					class="kit-repl-wrapper-playground"
-					class:dark={themeState === 'dark'}
-					class:light={themeState === 'light'}
-				>
+				<div class="kit-repl-wrapper-playground" use:theme.action={{ overridden: themeOverridden }}>
 					{@render children?.()}
 				</div>
 			{/if}
@@ -162,41 +190,46 @@
 <style>
 	.kit-repl {
 		/* ui */
-		--kit-repl-spacing: 0.25rem;
-		--kit-repl-radius: 1rem;
+		--kit-repl-spacing: var(--kit-space-default, 4px);
+		--kit-repl-radius: var(--kit-shape-md, 10px);
 
 		/* shiki override */
-		--kit-repl-shiki-size: 0.875rem;
+		--kit-repl-shiki-size: var(--kit-font-xs, 13px);
 		--kit-repl-shiki-tab-size: 2;
 
 		/* colors */
-		--kit-repl-background: #f9f9f9;
-		--kit-repl-border-color: #ebebeb;
-		--kit-repl-primary: #0d0d34;
-		--kit-repl-secondary: #8f8f8f;
+		--kit-repl-playground: var(--kit-color-surface, #fbfbfb);
+		--kit-repl-background: var(--kit-color-surface-1, #f9f9f9);
+		--kit-repl-border-color: var(--kit-color-fill, #ebebeb);
+		--kit-repl-primary: var(--kit-color-text, #0d0d34);
+		--kit-repl-secondary: var(--kit-color-text-muted, #8f8f8f);
 	}
 	.kit-repl-container {
 		background-color: var(--kit-repl-background);
 		border-radius: var(--kit-repl-radius);
-		border: 2px solid var(--kit-repl-border-color);
+		border: 1px solid var(--kit-repl-border-color);
 	}
 
 	.kit-repl-container :global(pre) {
 		background-color: var(--kit-repl-background) !important;
+		border: 0 !important;
+		border-radius: 0 !important;
+		border-bottom-left-radius: var(--kit-repl-radius) !important;
+		border-bottom-right-radius: var(--kit-repl-radius) !important;
+		padding: 10px 0 !important;
+		margin-bottom: 0 !important;
+		margin-top: 0 !important;
+		font-size: var(--kit-repl-shiki-size) !important;
 	}
 
 	.kit-repl-content {
 		display: flow-root;
-		margin-top: calc(var(--kit-repl-spacing) * 0);
-		padding-right: calc(10 * var(--kit-repl-spacing));
-		padding-left: calc(5 * var(--kit-repl-spacing));
-		padding-bottom: calc(4 * var(--kit-repl-spacing));
-		padding-top: calc(3 * var(--kit-repl-spacing));
 		position: relative;
 	}
 
 	.kit-repl-content--code {
 		padding-top: 0;
+		padding-left: calc(var(--kit-repl-spacing) * 2);
 	}
 
 	.kit-repl-content--playground {
@@ -204,13 +237,14 @@
 		padding-bottom: calc(10 * var(--kit-repl-spacing));
 	}
 
-	hr {
-		max-width: calc(100% - 2.5rem);
-		margin-inline-start: calc(2.5rem / 2);
-		display: block;
-		border: thin solid var(--kit-repl-border-color);
-		margin-top: 0;
-		margin-bottom: 0;
+	.kit-repl-raw {
+		font-size: var(--kit-repl-shiki-size);
+		-moz-tab-size: var(--kit-repl-shiki-tab-size);
+		tab-size: var(--kit-repl-shiki-tab-size);
+		white-space: pre-wrap;
+		word-break: break-word;
+		margin: 0;
+		padding: 0;
 	}
 
 	div.kit-repl-container .kit-repl-wrapper-highlight :global(pre code) {
@@ -221,9 +255,28 @@
 		word-break: break-word;
 	}
 
+	/* shiki dual-theme: follows the ambient lapikit theme (light/dark/system) */
+	.kit-repl-wrapper-highlight :global(.shiki),
+	.kit-repl-wrapper-highlight :global(.shiki span) {
+		color: var(--shiki-light);
+	}
+
+	:global([data-kit-theme='dark']) .kit-repl-wrapper-highlight :global(.shiki),
+	:global([data-kit-theme='dark']) .kit-repl-wrapper-highlight :global(.shiki span) {
+		color: var(--shiki-dark);
+	}
+
+	@media (prefers-color-scheme: dark) {
+		:global([data-kit-theme='system']) .kit-repl-wrapper-highlight :global(.shiki),
+		:global([data-kit-theme='system']) .kit-repl-wrapper-highlight :global(.shiki span) {
+			color: var(--shiki-dark);
+		}
+	}
+
 	div.kit-repl-container .kit-repl-wrapper-playground {
-		background-color: var(--kit-repl-background);
-		border-radius: var(--kit-repl-radius);
+		background-color: var(--kit-repl-playground);
+		border-bottom-left-radius: var(--kit-repl-radius);
+		border-bottom-right-radius: var(--kit-repl-radius);
 		padding: calc(4 * var(--kit-repl-spacing));
 	}
 </style>

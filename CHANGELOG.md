@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.7] - 2025-09-23
+
+### Added
+
+- Control and support function theme to `lapikit`
+- Theming sync with api theme `lapikit`
+
+### Updated
+
+- Update process to initialize shiki
+- Limit load libs shiki
+
+### Fix
+
+- if you create LazyRepl, initialize @lapikit/repl broke regulary
+
 ## [0.0.6] - 2025-02-17
 
 ### Updated

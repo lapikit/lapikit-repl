@@ -23,8 +23,8 @@
 		display: flex;
 		align-self: center;
 		justify-content: center;
-		font-size: 0.875rem;
-		border-radius: 0.375rem;
+		font-size: var(--kit-repl-shiki-size);
+		border-radius: var(--kit-repl-radius);
 		transition: background-color 0.2s ease;
 		padding: 8px;
 		color: var(--kit-repl-secondary);

@@ -14,7 +14,10 @@ export interface ToolbarProps {
 	presentation?: boolean;
 	viewState?: 'code' | 'preview';
 	themeState?: 'light' | 'dark';
+	onToggleTheme?: () => void;
 	modeState?: 'code' | 'playground' | 'mixed';
+	children?: Snippet;
+	files?: FileItem[];
 }
 
 export interface FilesProps {
@@ -28,4 +31,6 @@ export interface FileItem {
 	name: string;
 	content: string;
 	lang?: string;
+	/** Explicit icon URL, takes precedence over the language icon */
+	icon?: string;
 }

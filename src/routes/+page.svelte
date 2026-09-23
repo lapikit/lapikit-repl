@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Repl from '$lib/Repl.svelte';
+	import { createGlobalTheme, useTheme } from 'lapikit/actions';
 
 	// sample code to show in the REPL
 	import sampleJson from './samples/json.json?raw';
@@ -8,11 +9,25 @@
 
 	// sample component
 	import Counter from './samples/counter.svelte';
+
+	const app = createGlobalTheme();
+	const themes = ['light', 'dark', 'system'] as const;
 </script>
 
 <h1>Welcome to your library project</h1>
 <p>Create your package using @sveltejs/package and preview/showcase your work with SvelteKit</p>
 <p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+
+<div style="display:flex; gap:8px; margin-block:16px;">
+	{#each themes as name (name)}
+		<button
+			onclick={() => useTheme(name)}
+			style="font-weight:{app.active === name ? 'bold' : 'normal'}"
+		>
+			{name}
+		</button>
+	{/each}
+</div>
 
 <!-- <Repl title="Sample code" content={sampleJson} /> -->
 <!-- <Repl content={{ lang: 'svelte', code: 'console.log("hello")' }} /> -->

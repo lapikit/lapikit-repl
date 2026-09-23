@@ -4,17 +4,15 @@ import svelte from '$lib/languages/svelte.svg';
 import css from '$lib/languages/css.svg';
 import html from '$lib/languages/html.svg';
 import shell from '$lib/languages/shell.svg';
+import npm from '$lib/pkg/npm.svg';
+import yarn from '$lib/pkg/yarn.svg';
+import bun from '$lib/pkg/bun.svg';
 
 export const copyToClipboard = (value: string) => {
 	if (navigator.clipboard && window.isSecureContext) {
-		navigator.clipboard
-			.writeText(value)
-			.then(function () {
-				console.log('Success copy: ' + value);
-			})
-			.catch(function (err) {
-				console.error('Error copying to clipboard: ', err);
-			});
+		navigator.clipboard.writeText(value).catch(function (err) {
+			console.error('Error copying to clipboard: ', err);
+		});
 	} else {
 		// Fallback (legacy browser)
 		const zoneTexte = document.createElement('textarea');
@@ -27,7 +25,6 @@ export const copyToClipboard = (value: string) => {
 
 		try {
 			document.execCommand('copy');
-			console.log('Success copy: ' + value);
 		} catch (err) {
 			console.error('Error copying to clipboard: ', err);
 		}
@@ -61,4 +58,10 @@ export const dictionaryIcons: { [key: string]: string } = {
 	html: html,
 	htm: html,
 	json: shell
+};
+
+export const dictionaryPkgIcons: { [key: string]: string } = {
+	npm,
+	yarn,
+	bun
 };
