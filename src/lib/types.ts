@@ -31,4 +31,6 @@ export interface FileItem {
 	name: string;
 	content: string;
 	lang?: string;
+	/** Explicit icon URL, takes precedence over the language icon */
+	icon?: string;
 }

@@ -2,6 +2,7 @@
 	import { copyToClipboard } from '$lib/utils.js';
 	import { getHighlighterSingleton, resolveLang } from '$lib/shiki.js';
 	import { createTheme } from 'lapikit/actions';
+	import { MediaQuery } from 'svelte/reactivity';
 	import type { FileItem, ReplProps } from '$lib/types.js';
 
 	// components
@@ -20,13 +21,12 @@
 	let copyState = $state(false);
 	let viewState: 'code' | 'preview' = $state('code');
 
-	// theme: mirrors the ambient lapikit theme (light/dark/system) until the
-	// toolbar toggle is used. The override only applies to the rendered
-	// children/preview area — the toolbar and shiki code always follow
-	// the ambient theme.
 	const theme = createTheme();
 	let themeOverridden = $state(false);
-	let themeState = $derived<'light' | 'dark'>(theme.active === 'dark' ? 'dark' : 'light');
+	const prefersDark = new MediaQuery('(prefers-color-scheme: dark)');
+	let themeState = $derived<'light' | 'dark'>(
+		theme.active === 'dark' || (theme.active === 'system' && prefersDark.current) ? 'dark' : 'light'
+	);
 
 	function toggleTheme() {
 		themeOverridden = true;
@@ -42,7 +42,8 @@
 				{
 					name: title || 'code',
 					content: content.code,
-					lang: content.lang || 'sh'
+					lang: content.lang || 'sh',
+					icon: content.icon
 				}
 			];
 		}
@@ -57,7 +58,11 @@
 				lang:
 					typeof fileContent === 'object'
 						? ((fileContent as Record<string, unknown>).lang as string)
-						: 'sh'
+						: 'sh',
+				icon:
+					typeof fileContent === 'object'
+						? ((fileContent as Record<string, unknown>).icon as string | undefined)
+						: undefined
 			}));
 		}
 
@@ -65,7 +70,8 @@
 			return content.map((item) => ({
 				name: item.name,
 				content: item.content || item.code || '',
-				lang: item.lang || 'sh'
+				lang: item.lang || 'sh',
+				icon: item.icon
 			}));
 		}
 
@@ -90,35 +96,44 @@
 	});
 
 	$effect(() => {
-		if (copyState) {
-			if (ref?.textContent) {
-				copyToClipboard(ref?.textContent);
-				copyState = true;
+		if (!copyState || !ref?.textContent) return;
 
-				setTimeout(() => {
-					copyState = false;
-				}, 1500);
-			}
-		}
+		copyToClipboard(ref.textContent);
+		const timeout = setTimeout(() => {
+			copyState = false;
+		}, 1500);
+
+		return () => clearTimeout(timeout);
 	});
 
 	$effect(() => {
 		const file = activeFile;
 
-		if (file?.content) {
-			codeHTML = null;
-			language = file.lang || 'sh';
+		if (!file?.content) return;
 
-			(async () => {
-				const highlighter = await getHighlighterSingleton();
-				const html = highlighter.codeToHtml(file.content, {
+		codeHTML = null;
+		language = file.lang || 'sh';
+		const lang = language;
+		// a slower, older highlight must not overwrite the file selected since
+		let stale = false;
+
+		getHighlighterSingleton()
+			.then((highlighter) => {
+				if (stale) return;
+				codeHTML = highlighter.codeToHtml(file.content, {
 					themes: { light: 'github-light', dark: 'github-dark' },
 					defaultColor: false,
-					lang: resolveLang(highlighter, file.lang || language)
+					lang: resolveLang(highlighter, lang)
 				});
-				codeHTML = html;
-			})();
-		}
+			})
+			.catch((error) => {
+				// the raw code fallback stays visible
+				console.error('[kit-repl] unable to load the highlighter', error);
+			});
+
+		return () => {
+			stale = true;
+		};
 	});
 </script>
 
@@ -145,10 +160,6 @@
 		>
 			<Files {files} bind:activeIndex={activeFileIndex} {modeState} {viewState} />
 		</Toolbar>
-
-		<!-- {#if modeState !== 'code'}
-			<hr />
-		{/if} -->
 
 		{#if title}
 			<Files {files} bind:activeIndex={activeFileIndex} {modeState} {viewState} />
@@ -213,12 +224,6 @@
 
 	.kit-repl-content {
 		display: flow-root;
-		/* padding-left: calc(var(--kit-repl-spacing) * 2); */
-		/* margin-top: calc(var(--kit-repl-spacing) * 0); */
-		/* padding-right: calc(10 * var(--kit-repl-spacing));
-		padding-left: calc(5 * var(--kit-repl-spacing));
-		padding-bottom: calc(4 * var(--kit-repl-spacing));
-		padding-top: calc(3 * var(--kit-repl-spacing)); */
 		position: relative;
 	}
 
@@ -231,15 +236,6 @@
 		padding-top: calc(4 * var(--kit-repl-spacing));
 		padding-bottom: calc(10 * var(--kit-repl-spacing));
 	}
-
-	/* hr {
-		max-width: calc(100% - 2.5rem);
-		margin-inline-start: calc(2.5rem / 2);
-		display: block;
-		border: thin solid var(--kit-repl-border-color);
-		margin-top: 0;
-		margin-bottom: 0;
-	} */
 
 	.kit-repl-raw {
 		font-size: var(--kit-repl-shiki-size);
@@ -279,7 +275,6 @@
 
 	div.kit-repl-container .kit-repl-wrapper-playground {
 		background-color: var(--kit-repl-playground);
-		/* border-radius: var(--kit-repl-radius); */
 		border-bottom-left-radius: var(--kit-repl-radius);
 		border-bottom-right-radius: var(--kit-repl-radius);
 		padding: calc(4 * var(--kit-repl-spacing));
