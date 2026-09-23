@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { copyToClipboard } from '$lib/utils.js';
-	import { getHighlighterSingleton } from '$lib/shiki.js';
+	import { getHighlighterSingleton, resolveLang } from '$lib/shiki.js';
 	import { createTheme } from 'lapikit/actions';
 	import type { FileItem, ReplProps } from '$lib/types.js';
 
@@ -114,7 +114,7 @@
 				const html = highlighter.codeToHtml(file.content, {
 					themes: { light: 'github-light', dark: 'github-dark' },
 					defaultColor: false,
-					lang: file.lang || language
+					lang: resolveLang(highlighter, file.lang || language)
 				});
 				codeHTML = html;
 			})();
