@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { KitApp } from 'lapikit/components';
-	import { createGlobalTheme } from 'lapikit/actions';
+	import { createGlobalTheme } from 'lapikit/hooks';
 
 	createGlobalTheme();
 
