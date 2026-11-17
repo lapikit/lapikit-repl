@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Repl from '$lib/Repl.svelte';
-	import { createGlobalTheme, useTheme } from 'lapikit/actions';
+	import { createGlobalTheme, useTheme } from 'lapikit/hooks';
 
 	// sample code to show in the REPL
 	import sampleJson from './samples/json.json?raw';

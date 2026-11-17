@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { copyToClipboard } from '$lib/utils.js';
 	import { getHighlighterSingleton, resolveLang } from '$lib/shiki.js';
-	import { createTheme } from 'lapikit/actions';
+	import { createTheme } from 'lapikit/hooks';
 	import { MediaQuery } from 'svelte/reactivity';
 	import type { FileItem, ReplProps } from '$lib/types.js';
 
