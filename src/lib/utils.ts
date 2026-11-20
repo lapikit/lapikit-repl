@@ -5,6 +5,7 @@ import css from '$lib/languages/css.svg';
 import html from '$lib/languages/html.svg';
 import shell from '$lib/languages/shell.svg';
 import npm from '$lib/pkg/npm.svg';
+import pnpm from '$lib/pkg/pnpm.svg';
 import yarn from '$lib/pkg/yarn.svg';
 import bun from '$lib/pkg/bun.svg';
 
@@ -62,6 +63,7 @@ export const dictionaryIcons: { [key: string]: string } = {
 
 export const dictionaryPkgIcons: { [key: string]: string } = {
 	npm,
+	pnpm,
 	yarn,
 	bun
 };
